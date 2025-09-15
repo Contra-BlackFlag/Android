@@ -55,6 +55,6 @@ fun WishTextField(
        label = { Text(text = label, color = R.color.black) },
        modifier = Modifier.fillMaxSize(),
        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-      
+       
    )
 }
