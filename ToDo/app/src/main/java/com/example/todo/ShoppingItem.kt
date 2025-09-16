@@ -157,6 +157,18 @@ fun ShoppingList(
                         singleLine = true, modifier = Modifier.fillMaxWidth().padding(8.dp))
                     OutlinedTextField(value = IQuantity, onValueChange = {IQuantity = it},
                         singleLine = true, modifier = Modifier.fillMaxWidth().padding(8.dp))
+                    Button(onClick = {
+                        if (locationUtils.haslocationPermission(context)){
+                            locationUtils.requestLocationUpdates(viewModel)
+                            navController.navigate("locationscreen"){
+                                this.launchSingleTop
+                            }
+                        }
+                        else requestPermissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION))
+                    }) {
+                        Text("Address")
+                    }
                 }
             })
 
