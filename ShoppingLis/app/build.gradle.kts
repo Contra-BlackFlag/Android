@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.sih"
+    namespace = "com.example.shoppinglis"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.sih"
+        applicationId = "com.example.shoppinglis"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
@@ -40,13 +40,15 @@ android {
 }
 
 dependencies {
-    implementation("androidx.navigation:navigation-compose:2.7.7") // Check for the latest stable version
-    implementation("com.google.maps.android:maps-compose:4.3.3") // Check for the latest version
-    // ADD THESE TWO LINES
-    implementation("com.google.zxing:core:3.5.3") // Core library
-    implementation("com.journeyapps:zxing-android-embedded:4.3.0") // Provides a convenient encoder
-    implementation("androidx.compose.material:material-icons-extended:1.6.4") // Check for the latest version
-    implementation("ovh.plrapps:mapcompose:3.2.0")
+    implementation("com.google.maps.android:maps-compose:2.15.0")
+    implementation("com.google.android.gms:play-services-maps:18.1.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+    implementation("androidx.navigation:navigation-compose:2.9.4")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -55,13 +57,9 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.play.services.location)
     implementation(libs.play.services.maps)
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.3")
-    implementation(libs.androidx.material3)
-    implementation(libs.androidx.compose.ui.text)
-    implementation(libs.androidx.compose.foundation)
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.compose.foundation.layout)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
