@@ -23,11 +23,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
 import com.example.wishlistapp.Data.DummyWish
 import com.example.wishlistapp.Data.Wish
 
 @Composable
-fun HomeView(){
+fun HomeView(navController: NavController,
+             viewModel: WishViewModel,
+             ){
     val context = LocalContext.current
     Scaffold(
 
@@ -38,7 +42,10 @@ fun HomeView(){
             FloatingActionButton( modifier = Modifier.padding(20.dp),
                 contentColor = Color.White,
                 backgroundColor = Color.Black,
-                onClick = { }) {
+                onClick = {
+                        navController.navigate(Screen.AddScreen.route)
+
+                }) {
                 Icon(imageVector = Icons.Default.Add, "Add content")
             }
         }
@@ -68,3 +75,8 @@ fun WishItem(wish : Wish, onClick : ()-> Unit){
             Text(text = wish.description)        }
             }
 }
+//@Preview
+//@Composable
+//fun HomeViewPreview(){
+//    HomeView()
+//}

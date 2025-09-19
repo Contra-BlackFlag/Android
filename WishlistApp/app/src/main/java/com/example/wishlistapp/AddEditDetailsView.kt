@@ -1,28 +1,40 @@
 package com.example.wishlistapp
 
-import android.R
-import android.graphics.Color
+// Removed: import android.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues // Added
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
+// import androidx.compose.foundation.layout.wrapContentSize // wrapContentSize on Column was changed
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.InputTransformation.Companion.keyboardOptions
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+// M3 imports
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text // Replaces androidx.wear.compose.material.Text
+
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.wishlistapp.Data.Wish
+
+
+// Removed M2 and Wear imports:
+// import androidx.compose.material.OutlinedTextField
+// import androidx.compose.material.TextFieldDefaults
+// import androidx.compose.wear.compose.material.Text
+
 
 @Composable
 fun AddEditDetailsView(
@@ -30,31 +42,74 @@ fun AddEditDetailsView(
     viewModel: WishViewModel,
     navController: NavController
 ){
-    Scaffold(topBar =
-        { AppBarView(title = if (id != 0L) "UpdateList" else "Add Wish" ,
-            {}) }){
-        Column(modifier = Modifier
-            .padding(it)
-            .wrapContentSize(),
-           horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center){
+    Scaffold(topBar = {
+        AppBarView(
+            title = if (id != 0L) "Update Wish" else "Add Wish", // Changed "UpdateList" to "Update Wish" for consistency
+            onBackNavClicked = {
+                navController.navigate(Screen.HomeScreen.route)
+            })
+    }) { paddingValues: PaddingValues -> // Use paddingValues from Scaffold
+        Column(
+            modifier = Modifier
+                .padding(paddingValues) // Apply padding from Scaffold
+                .fillMaxWidth(), // Column takes full width
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
             Spacer(modifier = Modifier.height(10.dp))
+                WishTextField("Title",value = viewModel.wishTitleState, onValueChanged = {
+                    viewModel.onWishTitleChange(it) })
+            Spacer(modifier = Modifier.height(10.dp))
+            WishTextField("Description",value = viewModel.wishDescriptionState, onValueChanged = {
+                viewModel.onWishDescriptionChange(it) })
+            Spacer(modifier = Modifier.height(10.dp))
+            Button(onClick = {
+                    if (viewModel.wishTitleState.isNotEmpty() && viewModel.wishDescriptionState.isNotEmpty()){
+
+
+                    }
+                else{
+
+
+
+                }
+
+            }) {
+                Text(
+                    text = if (id!= 0L) "Update Wish" else "Add Wish",
+                    style = TextStyle(fontSize = 18.sp)
+                )
+            }
         }
     }
-
 }
+
 @Composable
 fun WishTextField(
     label:String,
-    value: String,
+    value:String,
     onValueChanged : (String) -> Unit
 ){
-  OutlinedTextField(
-       value = value,
-       onValueChanged = onValueChanged,
-       label = { Text(text = label, color = R.color.black) },
-       modifier = Modifier.fillMaxSize(),
-       keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-       
-   )
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChanged, // Parameter name is onValueChange for the composable
+        modifier = Modifier.fillMaxWidth(), // Original modifier
+        label = { Text(text = label, color = Color.Black) }, // label is a composable lambda
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+        colors = OutlinedTextFieldDefaults.colors( // Use M3 defaults
+            focusedTextColor = Color.Black,
+            unfocusedTextColor = Color.Black,
+            cursorColor = Color.Black,
+            focusedBorderColor = Color.Black,
+            unfocusedBorderColor = Color.Black,
+            focusedLabelColor = Color.Black,
+            unfocusedLabelColor = Color.Black
+        )
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun WishTextFieldPreview(){
+    WishTextField("text","text",{})
 }
