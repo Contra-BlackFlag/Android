@@ -19,7 +19,7 @@ fun Home(navController: NavController) {
         modifier = Modifier.fillMaxSize()
     ){
         Button(onClick = {
-            navController.navigate(Screens.SCROLL_FEED)
+            navController.navigate(Screens.FEED)
         }
         ){
             Text("Click Me")

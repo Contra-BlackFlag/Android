@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 
 @Composable
-fun NewsFeedInFullScreen(url: String? = "", title: String? = "", author: String? = "", content: String? = "") {
+fun NewsFeedInFullScreen(url: String, title: String, content: String, urltonews: String?) {
     Column(modifier = Modifier.fillMaxSize()) {
         // Ensure URL is not null before attempting to load image
         Card(
@@ -55,15 +55,8 @@ fun NewsFeedInFullScreen(url: String? = "", title: String? = "", author: String?
 
                 // Ensure URL exists before showing link
                 if (url != null) {
-                    ClickableLinkExample(url)
+                    ClickableLinkExample(urltonews)
                 }
-
-                Text(
-                    ": $author",
-                    fontFamily = FontFamily.SansSerif,
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 15.sp,
-                )
             }
         }
     }

@@ -11,6 +11,7 @@ import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -101,17 +102,17 @@ fun Navigation() {
             composable(Screens.SCROLL_FEED) {
                 ScrollFeed(viewmodel, innerPadding) // Bottom bar visible
             }
-            composable(Screens.NewsFeedFullScreen + "/{url}/{title}/{author}/{content}", arguments = listOf(
+            composable(Screens.NewsFeedFullScreen + "/{url}/{title}/{content}/{newsurl}", arguments = listOf(
                 navArgument("url"){ type = NavType.StringType },
                 navArgument("title"){ type = NavType.StringType },
-                navArgument("author"){ type = NavType.StringType },
-                navArgument("content"){ type = NavType.StringType }
+                navArgument("content"){ type = NavType.StringType },
+                navArgument("newsurl"){type = NavType.StringType }
             )){ backStackEntry ->
-                val title = backStackEntry.arguments?.getString("title")
-                val url = backStackEntry.arguments?.getString("url")
-                val author = backStackEntry.arguments?.getString("author")
-                val content = backStackEntry.arguments?.getString("content")
-                NewsFeedInFullScreen(url,title,author,content)
+                val url = backStackEntry.arguments?.getString("url") ?: ""
+                val title = backStackEntry.arguments?.getString("title") ?: ""
+                val content = backStackEntry.arguments?.getString("content") ?: ""
+                val newsurl = backStackEntry.arguments?.getString("newsurl")
+                NewsFeedInFullScreen(url,title,content,newsurl)
             }
         }
     }
@@ -133,6 +134,9 @@ fun ScrollFeed(viewModel: MainViewModel,paddingValues: PaddingValues) {
         pageCount = { pageCount }
     )
     Box(modifier = Modifier.padding()) {
+        if (viewModel.NewsDataState.value.loading){
+            CircularProgressIndicator()
+        }
         VerticalPager(pagerState) {
             val article = newsList[it]
             Card(
@@ -208,23 +212,23 @@ fun ScrollFeed(viewModel: MainViewModel,paddingValues: PaddingValues) {
     }
 }
 @Composable
-fun ClickableLinkExample(url: String) {
+fun ClickableLinkExample(url: String?) {
         val uriHandler = LocalUriHandler.current
 
         Text(
             buildAnnotatedString {
                 append("Visit the ")
-                withLink(
-                    LinkAnnotation.Url(
-                        url = url,
-                        styles = TextLinkStyles(style = SpanStyle(color = Color.Blue)) // Optional: Customize link appearance
-                    )
-                ) {
-                    append("Website")
+                url?.let {
+                    withLink(
+                        LinkAnnotation.Url(
+                            url = it,
+                            styles = TextLinkStyles(style = SpanStyle(color = Color.Blue)) // Optional: Customize link appearance
+                        )
+                    ) {
+                        append("Website")
+                    }
                 }
                 append(" for reading more")
             }
         )
     }
-
-

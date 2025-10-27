@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "274039236201",
+    "project_id": "liquidglassprojejct",
+    "storage_bucket": "liquidglassprojejct.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:274039236201:android:028d0d32e1453c5ffc24f8",
+        "android_client_info": {
+          "package_name": "com.example.liquidglassprojejct"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcaEl-hQwcRclIAObfv0c1voTgufx2two"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
