@@ -46,6 +46,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             LiquidGlassProjejctTheme {
+                // In your MainActivity or Application class
 
                 Scaffold( modifier = Modifier.fillMaxSize() ) { innerPadding ->
                     navigation()
