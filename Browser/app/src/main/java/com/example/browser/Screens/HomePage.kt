@@ -63,7 +63,7 @@ fun HomePage(NavController : NavController,viewModel: MainViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(id = R.drawable.img),
+                painter = painterResource(id = viewModel.search.value),
                 contentDescription = "Google",
                 modifier = Modifier
                     .padding(top = 32.dp)
@@ -93,12 +93,13 @@ fun HomePage(NavController : NavController,viewModel: MainViewModel) {
                             onValueChange = {
                                 viewModel.urlrequest(it)
                             },
-                            placeholder = { Text("Enter URL") },
+                            placeholder = { Text("Search") },
                             modifier = Modifier
                                 .width(250.dp)
-                                .height(56.dp).padding(top = 5.dp, start =7.dp),
+                                .height(56.dp)
+                                .padding(top = 5.dp, start = 7.dp),
                             shape = RoundedCornerShape(25.dp),
-                            singleLine = true,
+                            singleLine = false,
                             colors = TextFieldColors(
                                 focusedTextColor = Color.Black,
                                 unfocusedTextColor = Color.Gray,

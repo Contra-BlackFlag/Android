@@ -1,6 +1,7 @@
 package com.example.browser.Screens
 
 import android.annotation.SuppressLint
+import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.compose.BackHandler
@@ -12,6 +13,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,6 +34,8 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -67,7 +71,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-Piyus
+
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class)
 @SuppressLint("SetJavaScriptEnabled", "UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -125,17 +129,22 @@ fun WebView(NavController : NavController,ViewModel : MainViewModel) {
                 elevation = 10.dp,
                 contentAlignment = Alignment.Center
             ) {
-                Box(modifier = Modifier.fillMaxSize().align(Alignment.Center)) {
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .align(Alignment.Center)) {
                     if (expanded) {
                             BasicTextField(
                                 value = ViewModel.url.value,
                                 onValueChange = {
                                     ViewModel.url.value = it
                                 },
-                                modifier = Modifier.padding(12.dp).align(Alignment.CenterEnd),
+                                modifier = Modifier
+                                    .padding(12.dp)
+                                    .fillMaxSize(),
                                 textStyle = TextStyle(fontWeight = FontWeight.Bold,
                                     fontSize = 20.sp,
-                                    fontFamily = FontFamily.SansSerif)
+                                    fontFamily = FontFamily.SansSerif),
+                                singleLine = false
                             )
 
                     } else {
@@ -143,7 +152,9 @@ fun WebView(NavController : NavController,ViewModel : MainViewModel) {
                             text = ViewModel.currentUrl.value,
                             fontWeight = FontWeight.Bold,
                             color = Color.Black,
-                            modifier = Modifier.padding(start = 5.dp).padding(12.dp)
+                            modifier = Modifier
+                                .padding(start = 5.dp)
+                                .padding(12.dp)
                         )
                     }
                 }
@@ -163,7 +174,9 @@ fun WebView(NavController : NavController,ViewModel : MainViewModel) {
 
                 Button(
                     onClick = {
-                        if (ViewModel.currentUrl.value.contains("google")) {
+                        if (ViewModel.currentUrl.value.contains("google")
+                            ||
+                            ViewModel.currentUrl.value.contains("duck") ) {
                             NavController.navigate(Screens.HOMEPAGE)
                             NavController.popBackStack(Screens.WEBVIEW, inclusive = true)
 
@@ -179,7 +192,10 @@ fun WebView(NavController : NavController,ViewModel : MainViewModel) {
                     ),
                     shape = CircleShape
                 ) { }
-                if (ViewModel.currentUrl.value.contains("google") && !expanded) {
+                if ((ViewModel.currentUrl.value.contains("google")
+                            ||
+                            ViewModel.currentUrl.value.contains("duck"))
+                    && !expanded) {
                     Icon(
                         Icons.Default.Home,
                         "Home"
@@ -187,7 +203,7 @@ fun WebView(NavController : NavController,ViewModel : MainViewModel) {
 
                 }
                 else if(expanded){
-                    Image(painter = painterResource(R.drawable.img),"")
+                    Image(painter = painterResource(ViewModel.search.value),"")
                 }
                 else {
                     Icon(
@@ -245,7 +261,8 @@ fun WebView(NavController : NavController,ViewModel : MainViewModel) {
 
 
     }
-
+    val options = listOf("Google", "DuckDuckGo")
+    var selectedOption by remember { mutableStateOf(options[0]) }
 
     // Bottom Sheet
     if (showSheet) {
@@ -276,22 +293,63 @@ fun WebView(NavController : NavController,ViewModel : MainViewModel) {
                     .padding(20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = "This is a Modal Bottom Sheet!",
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "It slides up smoothly, has rounded corners, and can be dismissed by tapping outside or swiping down."
-                )
-                Spacer(modifier = Modifier.height(24.dp))
-                Button(onClick = { showSheet = false }) {
-                    Text("Close Sheet")
-                }
+               Column {
+
+
+                   var expanded by remember { mutableStateOf(false) }
+                   val items = listOf(R.drawable.google,R.drawable.duck)
+                   Box(contentAlignment = Alignment.Center) {
+                       Box(
+                           modifier = Modifier
+                               .fillMaxWidth()
+                               .size(width = 200.dp, height = 50.dp)
+                       ) {
+
+                           Row(
+                               horizontalArrangement = Arrangement.SpaceBetween
+                           ) {
+                               Text("Default Search Engine:       ", fontWeight = FontWeight.Bold, fontSize = 25.sp)
+                               Image(painter = painterResource(ViewModel.search.value)
+                                   ,"",
+                                   modifier = Modifier
+                                       .clickable { expanded = true })
+                               Spacer(modifier = Modifier.padding(start = 5.dp, end = 2.dp))
+                           }
+
+                       }
+
+                       DropdownMenu(
+                           expanded = expanded,
+                           onDismissRequest = { expanded = false },
+                           modifier = Modifier.background(Color.White)
+                       ) {
+                           options.forEach { option ->
+                               DropdownMenuItem(
+                                   text = { Text(option) },
+                                   onClick = {
+                                       selectedOption = option
+                                       ViewModel.searchengine.value = option
+                                       when(selectedOption){
+                                           "Google"-> ViewModel.search.value = R.drawable.google
+                                           "DuckDuckGo"->ViewModel.search.value = R.drawable.duck
+                                       }
+                                       expanded = false
+                                   }
+                               )
+                           }
+                       }
+                   }
+               }
+
+
+
+
+
+               }
             }
         }
     }
-}
+
 
 
 @SuppressLint("CoroutineCreationDuringComposition")
@@ -321,7 +379,7 @@ fun Web(
                     }
                 }
 
-                loadUrl("https://www.google.com/search?q=${viewModel.url.value}")
+                loadUrl("https://www.${viewModel.searchengine.value}.com/search?q=${viewModel.url.value}")
                 webView.value = this
             }
         },
