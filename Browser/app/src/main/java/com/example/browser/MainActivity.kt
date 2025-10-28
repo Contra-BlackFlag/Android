@@ -6,7 +6,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.navigation.compose.NavHost
+import com.example.browser.Screens.ExpandableCircle
 import com.example.browser.Screens.HomePage
+import com.example.browser.Screens.Web
 import com.example.browser.ui.theme.BrowserTheme
 import java.net.UnknownHostException
 
