@@ -9,10 +9,12 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,8 +36,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -49,15 +53,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import com.example.browser.MainViewModel
 import com.mrtdk.glass.GlassBox
 import com.mrtdk.glass.GlassContainer
 import com.example.browser.R
-
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+Piyus
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class)
 @SuppressLint("SetJavaScriptEnabled", "UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -117,14 +127,17 @@ fun WebView(NavController : NavController,ViewModel : MainViewModel) {
             ) {
                 Box(modifier = Modifier.fillMaxSize().align(Alignment.Center)) {
                     if (expanded) {
-                        BasicTextField(
-                            value = ViewModel.url.value,
-                            onValueChange = {
-                                ViewModel.url.value = it
-                            },
-                            modifier = Modifier.padding(12.dp).fillMaxSize(),
-                            textStyle = TextStyle(fontWeight = FontWeight.Bold)
-                        )
+                            BasicTextField(
+                                value = ViewModel.url.value,
+                                onValueChange = {
+                                    ViewModel.url.value = it
+                                },
+                                modifier = Modifier.padding(12.dp).align(Alignment.CenterEnd),
+                                textStyle = TextStyle(fontWeight = FontWeight.Bold,
+                                    fontSize = 20.sp,
+                                    fontFamily = FontFamily.SansSerif)
+                            )
+
                     } else {
                         Text(
                             text = ViewModel.currentUrl.value,
@@ -166,12 +179,17 @@ fun WebView(NavController : NavController,ViewModel : MainViewModel) {
                     ),
                     shape = CircleShape
                 ) { }
-                if (ViewModel.currentUrl.value.contains("google")) {
+                if (ViewModel.currentUrl.value.contains("google") && !expanded) {
                     Icon(
                         Icons.Default.Home,
                         "Home"
                     )
-                } else {
+
+                }
+                else if(expanded){
+                    Image(painter = painterResource(R.drawable.img),"")
+                }
+                else {
                     Icon(
                         Icons.Default.ArrowBack,
                         "back"
@@ -276,6 +294,7 @@ fun WebView(NavController : NavController,ViewModel : MainViewModel) {
 }
 
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun Web(
     viewModel: MainViewModel,
@@ -320,6 +339,11 @@ fun Web(
     // optional system back handler
     BackHandler(enabled = webView.value?.canGoBack() == true) {
         webView.value?.goBack()
+    }
+
+    GlobalScope.launch (Dispatchers.IO){
+        delay(5000)
+        viewModel.url.value = ""
     }
 
 }

@@ -51,9 +51,11 @@ import kotlinx.coroutines.launch
 @OptIn(DelicateCoroutinesApi::class)
 @Composable
 fun HomePage(NavController : NavController,viewModel: MainViewModel) {
-   
 
-    Scaffold { innerPadding ->
+
+    Scaffold(
+
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .padding(innerPadding)
