@@ -14,6 +14,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -58,7 +59,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -81,7 +86,8 @@ import kotlinx.coroutines.launch
 @SuppressLint("SetJavaScriptEnabled", "UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun WebView(NavController : NavController,ViewModel : MainViewModel) {
-
+    val clipboardManager = LocalClipboardManager.current
+    val context = LocalContext.current
     var goBack: (() -> Unit)? by remember { mutableStateOf(null) }
     var showSheet by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
@@ -129,7 +135,15 @@ fun WebView(NavController : NavController,ViewModel : MainViewModel) {
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 30.dp)
                     .size(width = width, height = height)
-                    .clickable { expanded = true },
+                    .clickable { expanded = true }
+                    .pointerInput(Unit){
+                        detectTapGestures(
+                            onLongPress = {
+                                clipboardManager.setText(AnnotatedString(ViewModel.currentUrl.value))
+                                Toast.makeText(context, "URL Copied!", Toast.LENGTH_SHORT).show()
+                            }
+                        )
+                    },
                 warpEdges = 0.4f,
                 blur = 0.3f,
                 scale = 0.3f,
