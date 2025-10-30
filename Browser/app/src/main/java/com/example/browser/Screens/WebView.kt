@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.core.animateDpAsState
@@ -27,6 +28,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
@@ -59,6 +62,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -85,6 +90,9 @@ fun WebView(NavController : NavController,ViewModel : MainViewModel) {
     Scaffold(
 
     ) {
+            BackHandler (enabled = true){
+                goBack?.invoke()
+            }
 
         GlassContainer(
             modifier = Modifier
@@ -96,12 +104,12 @@ fun WebView(NavController : NavController,ViewModel : MainViewModel) {
                 }
             }
         ) {
-            // If expanded, show transparent overlay (acts like onDismissRequest)
+
             if (expanded) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .clickable { expanded = false } // 👈 collapse on outside click
+                        .clickable { expanded = false } 
                 )
             }
 
@@ -114,8 +122,8 @@ fun WebView(NavController : NavController,ViewModel : MainViewModel) {
                 targetValue = if (expanded) 100.dp else 50.dp,
                 animationSpec = spring(dampingRatio = 0.4f)
             )
+            val bottomPadding = if (expanded) 130.dp else 30.dp
 
-            // Your expandable GlassBox
             GlassBox(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -144,7 +152,16 @@ fun WebView(NavController : NavController,ViewModel : MainViewModel) {
                                 textStyle = TextStyle(fontWeight = FontWeight.Bold,
                                     fontSize = 20.sp,
                                     fontFamily = FontFamily.SansSerif),
-                                singleLine = false
+                                singleLine = false,
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Text,
+                                    imeAction = ImeAction.Search
+                                ),
+                                keyboardActions = KeyboardActions(
+                                    onSearch = {
+                                        NavController.navigate(Screens.WEBVIEW)
+                                    }
+                                )
                             )
 
                     } else {
@@ -264,14 +281,14 @@ fun WebView(NavController : NavController,ViewModel : MainViewModel) {
     val options = listOf("Google", "DuckDuckGo")
     var selectedOption by remember { mutableStateOf(options[0]) }
 
-    // Bottom Sheet
+
     if (showSheet) {
         ModalBottomSheet(
             onDismissRequest = { showSheet = false },
             sheetState = rememberModalBottomSheetState(
                 skipPartiallyExpanded = true
             ),
-            dragHandle = {  // Optional handle at the top
+            dragHandle = {  
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -356,14 +373,14 @@ fun WebView(NavController : NavController,ViewModel : MainViewModel) {
 @Composable
 fun Web(
     viewModel: MainViewModel,
-    onGoBackReady: (()->Unit) -> Unit // 👈 send function reference to parent
+    onGoBackReady: (()->Unit) -> Unit 
 ) {
     var currentUrl by remember { mutableStateOf("") }
     val webView = remember { mutableStateOf<WebView?>(null) }
 
     AndroidView(
-        factory = { context ->
-            WebView(context).apply {
+        factory = {
+            WebView(it).apply {
                 settings.javaScriptEnabled = true
                 settings.loadWithOverviewMode = true
                 settings.useWideViewPort = true
@@ -386,6 +403,7 @@ fun Web(
         modifier = Modifier.fillMaxSize(),
         update = { webView.value = it }
     )
+
     LaunchedEffect(webView.value) {
         webView.value?.let { web ->
             onGoBackReady {
@@ -394,7 +412,7 @@ fun Web(
         }
     }
 
-    // optional system back handler
+
     BackHandler(enabled = webView.value?.canGoBack() == true) {
         webView.value?.goBack()
     }
