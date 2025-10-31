@@ -123,7 +123,7 @@ fun WebView(NavController: NavController, ViewModel: MainViewModel) {
                                 onLongPress = {
                                     clipboardManager.setText(AnnotatedString(ViewModel.currentUrl.value))
                                     Toast.makeText(context, "URL Copied!", Toast.LENGTH_SHORT).show()
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    if (switch.value) haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                 }
                             )
                         },
@@ -335,7 +335,10 @@ fun WebView(NavController: NavController, ViewModel: MainViewModel) {
                                 contentDescription = "",
                                 modifier = Modifier.clickable {
                                     expandedMenu = true
-                                    haptic.performHapticFeedback(HapticFeedbackType.KeyboardTap)
+                                    if (switch.value){
+                                        haptic.performHapticFeedback(HapticFeedbackType.KeyboardTap)
+                                    }
+
                                 }
                             )
                         }
@@ -369,7 +372,7 @@ fun WebView(NavController: NavController, ViewModel: MainViewModel) {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            "Haptics:",
+                            "Haptics:                         ",
                             color = Color.Black,
                             fontWeight = FontWeight.Bold,
                             fontSize = 25.sp
