@@ -62,4 +62,17 @@ class MainViewModel(private val userPrefs : UserPreferences) : ViewModel() {
             userPrefs.saveSearchEngine(search)
         }
     }
+
+    val blurSlider = userPrefs.blurFlow.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        0.3F
+    )
+
+
+    fun setBlur(blur : Float){
+        viewModelScope.launch {
+            userPrefs.saveBlur(blur)
+        }
+    }
 }

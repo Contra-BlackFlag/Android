@@ -54,6 +54,7 @@ import androidx.navigation.NavController
 import kotlinx.coroutines.delay
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import com.example.browser.MainViewModel
+import androidx.compose.runtime.collectAsState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("SetJavaScriptEnabled", "UnusedMaterial3ScaffoldPaddingParameter",
@@ -73,6 +74,10 @@ fun WebView(NavController: NavController, ViewModel: MainViewModel) {
     val searchMode by ViewModel.searchEngineSelect.collectAsState()
     val search = if (searchMode.contains("google")) R.drawable.google else R.drawable.duck
     val switch = mutableStateOf(hapticsMode)
+
+
+
+    val slider = ViewModel.blurSlider.collectAsState().value
 
     Scaffold {
         BackHandler(enabled = true) { goBack?.invoke() }
@@ -123,8 +128,6 @@ fun WebView(NavController: NavController, ViewModel: MainViewModel) {
                     animationSpec = spring(dampingRatio = 0.4f)
                 )
 
-                val blur = if (expanded) 1f else 0.3f
-
                 Log.d("TextBox","${ViewModel.textbox.value}")
 
                 val offsetY by animateDpAsState(
@@ -155,7 +158,7 @@ fun WebView(NavController: NavController, ViewModel: MainViewModel) {
                             )
                         },
                     warpEdges = 0.4f,
-                    blur = blur,
+                    blur = slider,
                     scale = 0.3f,
                     shape = RoundedCornerShape(25.dp),
                     elevation = 10.dp,
@@ -231,7 +234,7 @@ fun WebView(NavController: NavController, ViewModel: MainViewModel) {
                         .padding(start = 20.dp, bottom = 30.dp)
                         .size(50.dp),
                     warpEdges = 0.5f,
-                    blur = 0.3f,
+                    blur = slider,
                     scale = 0.4f,
                     shape = CircleShape,
                     elevation = 20.dp,
@@ -292,7 +295,7 @@ fun WebView(NavController: NavController, ViewModel: MainViewModel) {
                         .padding(end = 20.dp, bottom = 30.dp)
                         .size(50.dp),
                     warpEdges = 0.5f,
-                    blur = 0.3f,
+                    blur = slider,
                     scale = 0.4f,
                     shape = CircleShape,
                     elevation = 20.dp,
@@ -421,11 +424,36 @@ fun WebView(NavController: NavController, ViewModel: MainViewModel) {
                         Switch(
                             checked = switch.value,
                             onCheckedChange = {
-                                switch.value = it
+                                ViewModel.setHaptics(it)
                                 haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
                             }
                         )
                     }
+
+                    Spacer(Modifier.height(16.dp))
+
+                    Row() {
+                        Text(
+                            "Blur Intensity:         ",
+                            color = Color.Black,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 25.sp
+                        )
+                        Slider(
+                            value = slider,
+                            onValueChange = {
+                                ViewModel.setBlur(it)
+                                if (hapticsMode){
+                                    haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+                                }
+                            },
+                            valueRange = 0f..1f
+
+                        )
+
+                    }
+                    Spacer(Modifier.height(16.dp))
+
                 }
             }
         }

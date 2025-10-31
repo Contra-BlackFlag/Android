@@ -13,6 +13,7 @@ class UserPreferences(private val context: Context) {
     companion object {
         val HAPTICS = booleanPreferencesKey("haptics")
         val SEARCH_ENGINE = stringPreferencesKey("search_engine")
+        val BLUR = floatPreferencesKey("blur")
     }
 
     // Save Dark Mode setting
@@ -20,6 +21,15 @@ class UserPreferences(private val context: Context) {
         context.userDataStore.edit { prefs ->
             prefs[HAPTICS] = enabled
         }
+    }
+
+    suspend fun saveBlur(value : Float){
+        context.userDataStore.edit{preferences ->
+            preferences[BLUR] = value
+        }
+    }
+    val blurFlow : Flow<Float> = context.userDataStore.data.map { preferences ->
+        preferences[BLUR] ?: 0.3F
     }
 
     // Read Dark Mode setting
