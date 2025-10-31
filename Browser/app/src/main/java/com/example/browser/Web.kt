@@ -1,6 +1,7 @@
 package com.example.browser
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.compose.BackHandler
@@ -35,6 +36,21 @@ fun Web(
                 settings.loadWithOverviewMode = true
                 settings.useWideViewPort = true
                 settings.setSupportZoom(false)
+                var lastScrollY = 0
+                setOnScrollChangeListener { _, _, scrollY, _, _ ->
+                    if (scrollY > lastScrollY + 10) {
+                        // Scrolling down → hide
+                        viewModel.setScroll(false)
+
+                        Log.d("scroll", "${viewModel.scroll.value}")
+                    } else if (scrollY < lastScrollY - 10) {
+                        // Scrolling up → show
+                        viewModel.setScroll(true)
+                        Log.d("scroll", "${viewModel.scroll.value}")
+                    }
+                    lastScrollY = scrollY
+
+                }
 
                 webViewClient = object : WebViewClient() {
                     override fun onPageFinished(view: WebView?, url: String?) {

@@ -21,4 +21,11 @@ class MainViewModel : ViewModel() {
     fun currentUrl(url : String){
         _currentUrl.value = url
     }
+
+    private val _scroll = mutableStateOf(false)
+    val scroll = _scroll
+
+    fun setScroll(state : Boolean){
+        _scroll.value = state
+    }
 }
