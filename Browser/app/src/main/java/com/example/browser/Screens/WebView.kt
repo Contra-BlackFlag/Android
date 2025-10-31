@@ -46,6 +46,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -59,9 +61,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
@@ -77,6 +82,7 @@ import com.example.browser.MainViewModel
 import com.mrtdk.glass.GlassBox
 import com.mrtdk.glass.GlassContainer
 import com.example.browser.R
+import com.example.browser.Web
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -91,8 +97,8 @@ fun WebView(NavController : NavController,ViewModel : MainViewModel) {
     var goBack: (() -> Unit)? by remember { mutableStateOf(null) }
     var showSheet by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
-
-
+    val haptic = LocalHapticFeedback.current
+    val switch = remember { mutableStateOf(true) }
     Scaffold(
 
     ) {
@@ -115,7 +121,7 @@ fun WebView(NavController : NavController,ViewModel : MainViewModel) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .clickable { expanded = false } 
+                        .clickable { expanded = false }
                 )
             }
 
@@ -128,19 +134,25 @@ fun WebView(NavController : NavController,ViewModel : MainViewModel) {
                 targetValue = if (expanded) 100.dp else 50.dp,
                 animationSpec = spring(dampingRatio = 0.4f)
             )
-            val bottomPadding = if (expanded) 130.dp else 30.dp
 
+                //Bottom search bar
             GlassBox(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 30.dp)
                     .size(width = width, height = height)
-                    .clickable { expanded = true }
                     .pointerInput(Unit){
                         detectTapGestures(
+                            onTap = {
+                                expanded = true
+                                if (switch.value) {
+                                    haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+                                }
+                            },
                             onLongPress = {
                                 clipboardManager.setText(AnnotatedString(ViewModel.currentUrl.value))
                                 Toast.makeText(context, "URL Copied!", Toast.LENGTH_SHORT).show()
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                             }
                         )
                     },
@@ -165,7 +177,8 @@ fun WebView(NavController : NavController,ViewModel : MainViewModel) {
                                     .fillMaxSize(),
                                 textStyle = TextStyle(fontWeight = FontWeight.Bold,
                                     fontSize = 20.sp,
-                                    fontFamily = FontFamily.SansSerif),
+                                    fontFamily = FontFamily.SansSerif,
+                                    color = Color.Gray),
                                 singleLine = false,
                                 keyboardOptions = KeyboardOptions(
                                     keyboardType = KeyboardType.Text,
@@ -182,7 +195,7 @@ fun WebView(NavController : NavController,ViewModel : MainViewModel) {
                         Text(
                             text = ViewModel.currentUrl.value,
                             fontWeight = FontWeight.Bold,
-                            color = Color.Black,
+                            color = Color.Gray,
                             modifier = Modifier
                                 .padding(start = 5.dp)
                                 .padding(12.dp)
@@ -190,6 +203,8 @@ fun WebView(NavController : NavController,ViewModel : MainViewModel) {
                     }
                 }
             }
+
+            //Home and search engine button
             GlassBox(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
@@ -210,9 +225,15 @@ fun WebView(NavController : NavController,ViewModel : MainViewModel) {
                             ViewModel.currentUrl.value.contains("duck") ) {
                             NavController.navigate(Screens.HOMEPAGE)
                             NavController.popBackStack(Screens.WEBVIEW, inclusive = true)
+                            if (switch.value) {
+                                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+                            }
 
                         } else {
                             goBack?.invoke()
+                            if (switch.value) {
+                                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+                            }
                         }
                     },
                     colors = ButtonColors(
@@ -229,7 +250,8 @@ fun WebView(NavController : NavController,ViewModel : MainViewModel) {
                     && !expanded) {
                     Icon(
                         Icons.Default.Home,
-                        "Home"
+                        "Home",
+                        tint = Color.Gray
                     )
 
                 }
@@ -239,10 +261,14 @@ fun WebView(NavController : NavController,ViewModel : MainViewModel) {
                 else {
                     Icon(
                         Icons.Default.ArrowBack,
-                        "back"
+                        "back",
+                        tint = Color.Gray
                     )
                 }
             }
+
+
+            //option button
             GlassBox(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
@@ -259,9 +285,16 @@ fun WebView(NavController : NavController,ViewModel : MainViewModel) {
                     onClick = {
                         if (expanded){
                                 NavController.navigate(Screens.WEBVIEW)
+                                if (switch.value) {
+                                    haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+                                }
                         }
                         else{
                             showSheet = true
+                            if (switch.value) {
+                                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+                            }
+
                         }
 
                     },
@@ -276,10 +309,14 @@ fun WebView(NavController : NavController,ViewModel : MainViewModel) {
 
                 }
                 if (expanded){
-                    Icon(painter = painterResource(R.drawable.search), "")
+                    Icon(painter = painterResource(R.drawable.search)
+                        , "",
+                        tint = Color.Gray)
                 }
                 else{
-                    Icon(Icons.Default.MoreVert, "",)
+                    Icon(Icons.Default.MoreVert,
+                        "",
+                        tint = Color.Gray)
                 }
 
 
@@ -370,6 +407,27 @@ fun WebView(NavController : NavController,ViewModel : MainViewModel) {
                            }
                        }
                    }
+
+                   Box(contentAlignment = Alignment.Center){
+                       Box( modifier = Modifier
+                           .fillMaxWidth()
+                           .size(width = 200.dp, height = 50.dp)
+                       ) {
+                           Row (){
+                               Text("Haptics :                              ", color = Color.Black,fontWeight = FontWeight.Bold, fontSize = 25.sp,
+                                   modifier = Modifier.align(alignment = Alignment.CenterVertically))
+
+                               Switch(
+                                   checked = switch.value,
+                                   onCheckedChange = {
+                                       switch.value = it
+                                       haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
+                                   }
+                               )
+
+                           }
+                       }
+                   }
                }
 
 
@@ -382,61 +440,6 @@ fun WebView(NavController : NavController,ViewModel : MainViewModel) {
     }
 
 
-
-@SuppressLint("CoroutineCreationDuringComposition")
-@Composable
-fun Web(
-    viewModel: MainViewModel,
-    onGoBackReady: (()->Unit) -> Unit 
-) {
-    var currentUrl by remember { mutableStateOf("") }
-    val webView = remember { mutableStateOf<WebView?>(null) }
-
-    AndroidView(
-        factory = {
-            WebView(it).apply {
-                settings.javaScriptEnabled = true
-                settings.loadWithOverviewMode = true
-                settings.useWideViewPort = true
-                settings.setSupportZoom(false)
-
-                webViewClient = object : WebViewClient() {
-                    override fun onPageFinished(view: WebView?, url: String?) {
-                        super.onPageFinished(view, url)
-                        url?.let {
-                            currentUrl = it
-                            viewModel.currentUrl(it)
-                        }
-                    }
-                }
-
-                loadUrl("https://www.${viewModel.searchengine.value}.com/search?q=${viewModel.url.value}")
-                webView.value = this
-            }
-        },
-        modifier = Modifier.fillMaxSize(),
-        update = { webView.value = it }
-    )
-
-    LaunchedEffect(webView.value) {
-        webView.value?.let { web ->
-            onGoBackReady {
-                if (web.canGoBack()) web.goBack()
-            }
-        }
-    }
-
-
-    BackHandler(enabled = webView.value?.canGoBack() == true) {
-        webView.value?.goBack()
-    }
-
-    GlobalScope.launch (Dispatchers.IO){
-        delay(5000)
-        viewModel.url.value = ""
-    }
-
-}
 
 @Composable
 fun ExpandableCircle() {
