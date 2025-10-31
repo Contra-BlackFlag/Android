@@ -8,12 +8,14 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -28,7 +30,7 @@ fun Web(
 ) {
     var currentUrl by remember { mutableStateOf("") }
     val webView = remember { mutableStateOf<WebView?>(null) }
-
+    val searchMode by viewModel.searchEngineSelect.collectAsState()
     AndroidView(
         factory = {
             WebView(it).apply {
@@ -62,7 +64,7 @@ fun Web(
                     }
                 }
 
-                loadUrl("https://www.${viewModel.searchengine.value}.com/search?q=${viewModel.url.value}")
+                loadUrl("https://www.${searchMode}.com/search?q=${viewModel.url.value}")
                 webView.value = this
             }
         },

@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,7 +56,7 @@ import kotlinx.coroutines.launch
 @OptIn(DelicateCoroutinesApi::class)
 @Composable
 fun HomePage(NavController : NavController,viewModel: MainViewModel) {
-
+    val searchEngine by viewModel.searchEngineSelect.collectAsState()
 
     Scaffold(
 
@@ -66,8 +67,9 @@ fun HomePage(NavController : NavController,viewModel: MainViewModel) {
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            val search = if (searchEngine.contains("google")) R.drawable.google else R.drawable.duck
             Image(
-                painter = painterResource(id = viewModel.search.value),
+                painter = painterResource(id = search),
                 contentDescription = "Google",
                 modifier = Modifier
                     .padding(top = 32.dp)

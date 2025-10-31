@@ -5,10 +5,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.navigation.compose.NavHost
-import com.example.browser.Screens.HomePage
+import androidx.compose.ui.platform.LocalContext
+import com.example.browser.Navigation.Navigation
+import com.example.browser.datastore.UserPreferences
 import com.example.browser.ui.theme.BrowserTheme
-import java.net.UnknownHostException
 
 class MainActivity : ComponentActivity() {
     @SuppressLint("ViewModelConstructorInComposable")
@@ -16,8 +16,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val context = LocalContext.current
             BrowserTheme {
-                val viewModel : MainViewModel = MainViewModel()
+                val viewModel : MainViewModel = MainViewModel(UserPreferences(context))
                 Navigation(viewModel)
             }
         }

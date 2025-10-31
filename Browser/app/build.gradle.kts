@@ -61,7 +61,8 @@ dependencies {
 dependencies {
     implementation("androidx.webkit:webkit:1.8.0")
     implementation("androidx.navigation:navigation-compose:2.8.3")
-
+    implementation("androidx.compose.material3:material3:1.3.0")
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
 }
 dependencies {
     implementation("com.github.Mortd3kay:liquid-glass-android:0.1.0")

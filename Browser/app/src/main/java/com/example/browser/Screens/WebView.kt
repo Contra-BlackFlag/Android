@@ -1,6 +1,7 @@
 package com.example.browser.Screens
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
@@ -11,6 +12,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,9 +24,11 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
@@ -40,16 +44,21 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.browser.MainViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.browser.R
 import com.example.browser.Web
 import com.mrtdk.glass.GlassBox
 import com.mrtdk.glass.GlassContainer
 import kotlinx.coroutines.launch
 import androidx.navigation.NavController
+import kotlinx.coroutines.delay
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import com.example.browser.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("SetJavaScriptEnabled", "UnusedMaterial3ScaffoldPaddingParameter")
+@SuppressLint("SetJavaScriptEnabled", "UnusedMaterial3ScaffoldPaddingParameter",
+    "UnrememberedMutableState"
+)
 @Composable
 fun WebView(NavController: NavController, ViewModel: MainViewModel) {
     val clipboardManager = LocalClipboardManager.current
@@ -58,26 +67,34 @@ fun WebView(NavController: NavController, ViewModel: MainViewModel) {
     var showSheet by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
     val haptic = LocalHapticFeedback.current
-    val switch = remember { mutableStateOf(true) }
+
+
+    val hapticsMode by ViewModel.hapticsMode.collectAsState()
+    val searchMode by ViewModel.searchEngineSelect.collectAsState()
+    val search = if (searchMode.contains("google")) R.drawable.google else R.drawable.duck
+    val switch = mutableStateOf(hapticsMode)
 
     Scaffold {
         BackHandler(enabled = true) { goBack?.invoke() }
 
         GlassContainer(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(),
+            modifier = Modifier.fillMaxSize(),
             content = {
                 Box(modifier = Modifier.padding(it)) {
                     Web(viewModel = ViewModel, onGoBackReady = { backFunc -> goBack = backFunc })
                 }
             }
-        ) {
+        )
+
+
+        {
             if (expanded) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .clickable { expanded = false }
+                        .clickable { expanded = false
+                            ViewModel.textbox.value = false
+                        }
                 )
             }
 
@@ -106,10 +123,20 @@ fun WebView(NavController: NavController, ViewModel: MainViewModel) {
                     animationSpec = spring(dampingRatio = 0.4f)
                 )
 
-                val blur = if (expanded) 0.8f else 0.3f
+                val blur = if (expanded) 1f else 0.3f
 
+                Log.d("TextBox","${ViewModel.textbox.value}")
+
+                val offsetY by animateDpAsState(
+                    targetValue = if (ViewModel.textbox.value) (-350).dp else 0.dp,
+                    animationSpec = tween(durationMillis = 400)
+                )
+
+                val boxModifier = Modifier.offset(y = offsetY)
+
+                    // Bottom Search
                 GlassBox(
-                    modifier = Modifier
+                    modifier = boxModifier
                         .padding(bottom = 30.dp)
                         .size(width = width, height = height)
                         .pointerInput(Unit) {
@@ -145,7 +172,16 @@ fun WebView(NavController: NavController, ViewModel: MainViewModel) {
                                 onValueChange = { ViewModel.url.value = it },
                                 modifier = Modifier
                                     .padding(12.dp)
-                                    .fillMaxSize(),
+                                    .fillMaxSize()
+                                    .onFocusChanged { focusState ->
+                                        if (focusState.isFocused) {
+                                            ViewModel.textbox.value = true
+                                        }
+                                        else{
+                                            ViewModel.textbox.value = false
+
+                                        }
+                                    },
                                 textStyle = TextStyle(
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 20.sp,
@@ -173,6 +209,7 @@ fun WebView(NavController: NavController, ViewModel: MainViewModel) {
                         }
                     }
                 }
+
             }
 
             // Home button - slides from left
@@ -188,6 +225,7 @@ fun WebView(NavController: NavController, ViewModel: MainViewModel) {
                 ),
                 modifier = Modifier.align(Alignment.BottomStart)
             ) {
+                // Home Button
                 GlassBox(
                     modifier = Modifier
                         .padding(start = 20.dp, bottom = 30.dp)
@@ -226,7 +264,7 @@ fun WebView(NavController: NavController, ViewModel: MainViewModel) {
                     ) {
                         Icon(Icons.Default.Home, "Home", tint = Color.Gray)
                     } else if (expanded) {
-                        Image(painter = painterResource(ViewModel.search.value), contentDescription = "")
+                        Image(painter = painterResource(search), contentDescription = "")
                     } else {
                         Icon(Icons.Default.ArrowBack, "Back", tint = Color.Gray)
                     }
@@ -246,6 +284,9 @@ fun WebView(NavController: NavController, ViewModel: MainViewModel) {
                 ),
                 modifier = Modifier.align(Alignment.BottomEnd)
             ) {
+
+
+                //More Button
                 GlassBox(
                     modifier = Modifier
                         .padding(end = 20.dp, bottom = 30.dp)
@@ -330,8 +371,9 @@ fun WebView(NavController: NavController, ViewModel: MainViewModel) {
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 25.sp
                             )
+
                             Image(
-                                painter = painterResource(ViewModel.search.value),
+                                painter = painterResource(search),
                                 contentDescription = "",
                                 modifier = Modifier.clickable {
                                     expandedMenu = true
@@ -352,11 +394,10 @@ fun WebView(NavController: NavController, ViewModel: MainViewModel) {
                                 DropdownMenuItem(
                                     text = { Text(option) },
                                     onClick = {
-                                        selectedOption = option
-                                        ViewModel.searchengine.value = option
-                                        when (selectedOption) {
-                                            "Google" -> ViewModel.search.value = R.drawable.google
-                                            "DuckDuckGo" -> ViewModel.search.value = R.drawable.duck
+                                        ViewModel.setSearchEngine(option)
+                                        when (option) {
+                                            "Google" -> ViewModel.setSearchEngine("google")
+                                            "DuckDuckGo" -> ViewModel.setSearchEngine("duck")
                                         }
                                         expandedMenu = false
                                     }
