@@ -1,7 +1,10 @@
+import org.gradle.kotlin.dsl.implementation
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("kotlin-kapt")
 }
 
 android {
@@ -63,7 +66,25 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.8.3")
     implementation("androidx.compose.material3:material3:1.3.0")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
+
+    val room_version = "2.8.3"
+
+    implementation("androidx.room:room-runtime:$room_version")
+    kapt("androidx.room:room-compiler:$room_version")
+    implementation("androidx.room:room-ktx:${room_version}")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
+
 }
 dependencies {
+    implementation(libs.androidx.compose.runtime.livedata)
     implementation("com.github.Mortd3kay:liquid-glass-android:0.1.0")
+
+    implementation ("androidx.compose.ui:ui:1.7.3")
+    implementation ("androidx.compose.material:material:1.7.3")
+    implementation ("androidx.compose.ui:ui-tooling-preview:1.7.3")
+    debugImplementation ("androidx.compose.ui:ui-tooling:1.7.3")
+
+
+
 }

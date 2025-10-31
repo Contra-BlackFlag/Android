@@ -38,6 +38,7 @@ fun Web(
                 settings.loadWithOverviewMode = true
                 settings.useWideViewPort = true
                 settings.setSupportZoom(false)
+
                 var lastScrollY = 0
                 setOnScrollChangeListener { _, _, scrollY, _, _ ->
                     if (scrollY > lastScrollY + 10) {
@@ -60,6 +61,8 @@ fun Web(
                         url?.let {
                             currentUrl = it
                             viewModel.currentUrl(it)
+                            val urltext = extractDomain(it)
+                            viewModel.insertHistory(urltext?: url ,currentUrl)
                         }
                     }
                 }
@@ -90,4 +93,10 @@ fun Web(
         viewModel.url.value = ""
     }
 
+}
+
+fun extractDomain(url: String): String? {
+    val regex = Regex("^(?:https?://)?(?:www\\.)?([^/]+)")
+    val match = regex.find(url)
+    return match?.groups?.get(1)?.value
 }

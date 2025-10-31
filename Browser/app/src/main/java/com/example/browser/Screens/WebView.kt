@@ -2,6 +2,7 @@ package com.example.browser.Screens
 
 import android.annotation.SuppressLint
 import android.util.Log
+import android.widget.Button
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
@@ -22,6 +23,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -454,6 +456,22 @@ fun WebView(NavController: NavController, ViewModel: MainViewModel) {
                     }
                     Spacer(Modifier.height(16.dp))
 
+                    Row() {
+                        Text(
+                            "History:                        ",
+                            color = Color.Black,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 25.sp
+                        )
+                        Button(
+                            onClick = {
+                                NavController.navigate(Screens.HISTORY)
+                            }
+                        ){
+                            Icon(Icons.Default.KeyboardArrowRight,"")
+                        }
+                    }
+                    Spacer(Modifier.height(16.dp))
                 }
             }
         }
